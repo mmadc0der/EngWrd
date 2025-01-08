@@ -18,7 +18,7 @@ class SettingEntity:
     name: str  # primary key
     value: str
 
-class Storager:
+class WordStorager:
     def __init__(self):
         self.conn = sqlite3.connect(':memory:')  # In-memory SQLite database
         self.cursor = self.conn.cursor()
@@ -123,10 +123,62 @@ class Storager:
 
         return selected_entities
 
+class SettingsStorager:
+    def __init__(self):
+        self.conn = sqlite3.connect(':memory:')  # In-memory SQLite database
+        self.cursor = self.conn.cursor()
+        self._initialize_db()
+        self._initialize_default_settings()
+
+    def _initialize_db(self):
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS settings (
+                name TEXT PRIMARY KEY,
+                value TEXT
+            )
+        ''')
+        self.conn.commit()
+
+    def _initialize_default_settings(self):
+        default_settings = {
+            'theme': 'light',
+            'training_length': '10',
+            'review_frequency': 'daily',
+            'notification_settings': 'on',
+            'language_preference': 'russian_to_english',
+            'progress_tracking': 'enabled',
+            'number_of_retries': '3'
+        }
+        for name, value in default_settings.items():
+            self.modify(name, value)
+
+    def modify(self, name: str, value: str) -> None:
+        '''
+        Modifies the value of a setting.
+        '''
+        self.cursor.execute('''
+            INSERT OR REPLACE INTO settings (name, value)
+            VALUES (?, ?)
+        ''', (name, value))
+        self.conn.commit()
+
+    def get(self, name: str) -> str:
+        '''
+        Retrieves the value of a setting.
+        '''
+        self.cursor.execute('''
+            SELECT value FROM settings WHERE name = ?
+        ''', (name,))
+        row = self.cursor.fetchone()
+        if row:
+            return row[0]
+        return None
+
+
 if __name__ == '__main__':
     import numpy as np  # Import numpy for weighted random selection
 
-    S = Storager()
+    S = WordStorager()
 
     # Add test data
     test_data = [

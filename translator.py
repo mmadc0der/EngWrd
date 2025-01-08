@@ -2,6 +2,9 @@ import asyncio
 from googletrans import Translator
 
 async def translate(word: str) -> dict:
+    '''
+    Translates any word or phrase and autodetects language
+    '''
     translator = Translator()
     
     # Detect the language of the input word
