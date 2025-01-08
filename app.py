@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 import asyncio
 from threading import Thread
 from translator import translate
@@ -84,12 +84,9 @@ class App:
         word_to_delete = word_entry.get().strip()
 
         if word_to_delete:
-            res = self.word_storager.delete(word_to_delete)
+            self.word_storager.delete(word_to_delete)
             delete_word_window.destroy()
-            if res:
-                messagebox.showinfo("Success", "Word deleted successfully.")
-            else:
-                messagebox.showinfo("Success", "Word already deleted.")
+            messagebox.showinfo("Success", "Word deleted successfully.")
         else:
             messagebox.showwarning("Error", "Word deleteon failed.")
 
@@ -129,7 +126,7 @@ class App:
         # Confirm and Change buttons
         self.button_frame = tk.Frame(add_word_window)
         self.confirm_button = tk.Button(self.button_frame, text="Confirm", command=lambda: self.confirm_word(add_word_window, word_entry), width=18)
-        self.change_button = tk.Button(self.button_frame, text="Change", command=lambda: print(self.meaning_label.winfo_height(), self.mistakes_label.winfo_height()), width=18)
+        self.change_button = tk.Button(self.button_frame, text="Change", command=lambda: self.change_translation(add_word_window, word_label, word_entry, translate_button), width=18)
         self.confirm_button.grid(row=0, column=1, pady=5)
         self.change_button.grid(row=0, column=0, pady=5)
         self.confirm_button.config(state=tk.DISABLED)
@@ -193,8 +190,21 @@ class App:
                 + ((self.mistakes_label.winfo_height() + 5) if self.mistakes_label.winfo_height() > 1 else 0)
             )
 
-    def confirm_word(self, add_word_window, word_entry):
-        translated_word = self.translated_label.cget("text").split(": ")[1]
+    def change_translation(self, add_word_window, word_label, word_entry, translate_button):
+        self.meaning_label.pack_forget()
+        self.mistakes_label.pack_forget()
+        self.button_frame.pack_forget()
+        word_label.config(text='Enter word in English:')
+        self.translated_label.config(text='Enter word translation:')
+        translate_button.pack_forget()
+        resize_window(add_word_window, 400, 190)
+        translate_entry = tk.Entry(add_word_window, width=40)
+        translate_entry.pack(pady=5)
+        confirm_button = tk.Button(add_word_window, text="Confirm", command=lambda: self.confirm_word(add_word_window, word_entry, translate_entry), width=40)
+        confirm_button.pack(pady=5)
+
+    def confirm_word(self, add_word_window, word_entry, translate_entry = None):
+        translated_word = self.translated_label.cget("text").split(": ")[1] if not translate_entry else translate_entry.get().strip()
         meaning = self.meaning_label.cget("text").split(": ")[1] if self.meaning_label.cget("text") else None
         original_word = word_entry.get().strip()
 
