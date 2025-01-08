@@ -81,7 +81,17 @@ class App:
         translate_button.pack(pady=5)
 
     def remove_confirm(self, word_entry, delete_word_window):
-        
+        word_to_delete = word_entry.get().strip()
+
+        if word_to_delete:
+            res = self.word_storager.delete(word_to_delete)
+            delete_word_window.destroy()
+            if res:
+                messagebox.showinfo("Success", "Word deleted successfully.")
+            else:
+                messagebox.showinfo("Success", "Word already deleted.")
+        else:
+            messagebox.showwarning("Error", "Word deleteon failed.")
 
     # -- Show Settings --
     def show_settings(self):
