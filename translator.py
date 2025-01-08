@@ -12,16 +12,13 @@ async def translate(word: str) -> dict:
     src_lang = detected.lang
     
     # Determine target language based on source language
-    if src_lang == 'en':
-        target_lang = 'ru'
-    elif src_lang == 'ru':
+    if src_lang == 'ru':
         target_lang = 'en'
     else:
-        return "Unsupported language. Please enter English or Russian."
+        target_lang = 'ru'
 
     # Translate the word
     translation = await translator.translate(word, src=src_lang, dest=target_lang)
-    
     return {
         "original": word,
         "detected_language": src_lang,

@@ -65,6 +65,15 @@ class WordStorager:
             return WordEntity(*row)
         return None
 
+    def get_stats(self) -> list:
+        self.cursor.execute('''
+            SELECT id, en, ru, success, compares FROM words ORDER BY (success / compares + 1) DESC
+        ''')
+        rows = self.cursor.fetchall()
+        if not rows:
+            return []
+        else: return rows
+
     def delete(self, word: str) -> None:
         '''
         Deletes a word pair from the database by either the English or Russian word.
@@ -95,6 +104,14 @@ class WordStorager:
                     SET compares = ?, success = ?, weight = ?
                     WHERE id = ?
                 ''', (compares, success, weight, id))
+        self.conn.commit()
+    
+    def reset(self, id: int) -> None:
+        self.cursor.execute('''
+                    UPDATE words
+                    SET compares = 0, success = 0, weight = 1.0
+                    WHERE id = ?
+                ''', (id,))
         self.conn.commit()
 
     def random(self, size: int) -> list[WordEntity]:
